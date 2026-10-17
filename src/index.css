@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Instrument Serif", Georgia, Cambria, "Times New Roman", serif;
+  --font-sans: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #f5f5f5;
+  --color-neutral-200: #eaeaea;
+  --color-neutral-400: #999999;
+  --color-neutral-500: #777777;
+  --color-neutral-600: #555555;
+  --color-neutral-800: #222222;
+  --color-neutral-900: #111111;
+  --color-neutral-950: #0a0a0a;
+}
+
+@layer base {
+  :root {
+    --font-serif: "Instrument Serif", Georgia, Cambria, serif;
+    --font-sans: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --bg-white: #ffffff;
+    --bg-soft-white: #fafafa;
+    --bg-black: #000000;
+    --color-border-light: #eaeaea;
+    --color-border-dark: #222222;
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-family: var(--font-sans);
+    background-color: #ffffff;
+    color: #000000;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: #ffffff;
+    color: #000000;
+    overflow-x: hidden;
+  }
+
+  /* Display headlines and editorial elements use Instrument Serif */
+  h1, h2, h3, .font-serif, .editorial-heading {
+    font-family: var(--font-serif);
+    font-feature-settings: "kern" 1, "liga" 1;
+  }
+
+  /* Interface, buttons, labels, and form fields use high-legibility Manrope */
+  button,
+  input,
+  optgroup,
+  select,
+  textarea,
+  label,
+  .font-sans {
+    font-family: var(--font-sans);
+  }
+
+  /* Understated monochromatic scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #fafafa;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #d4d4d4;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #888888;
+  }
+
+  /* High contrast accessible focus styles */
+  :focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 2px;
+  }
+}
+
+/* Authentic Physical Split-Flap 3D Transforms & Keyframes */
+@keyframes splitFlapFoldTop {
+  0% {
+    transform: rotateX(0deg);
+  }
+  100% {
+    transform: rotateX(-90deg);
+  }
+}
+
+@keyframes splitFlapUnfoldBottom {
+  0% {
+    transform: rotateX(90deg);
+  }
+  80% {
+    transform: rotateX(-2deg);
+  }
+  100% {
+    transform: rotateX(0deg);
+  }
+}
+
+@keyframes splitFlapShadowFade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0.35;
+  }
+}
+
+/* Reduced motion accessibility support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
