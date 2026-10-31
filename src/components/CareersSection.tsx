@@ -21,6 +21,7 @@ import {
   AlertCircle,
   Loader2,
   ExternalLink,
+  KeyRound,
 } from 'lucide-react';
 import { EASINGS, fadeInUpVariants, lineExpandVariants } from './animations/motionVariants';
 import { COMPANY_DETAILS } from '../data/companyData';
@@ -146,7 +147,6 @@ export const CareersSection: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [submissionMeta, setSubmissionMeta] = useState<{ isTestAccount?: boolean; previewUrl?: string } | null>(null);
   const [copiedBrief, setCopiedBrief] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -165,7 +165,6 @@ export const CareersSection: React.FC = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       setFileError('File size exceeds 5MB limit. Please upload a smaller document.');
       return;
@@ -213,13 +212,13 @@ Phone / WhatsApp: ${formData.phone}
 Education / Degree: ${formData.education} (${formData.gradYear})
 Preferred Hub: ${formData.locationPref}
 GitHub Profile: ${formData.githubUrl || 'N/A'}
-Portfolio / LinkedIn: ${formData.portfolioUrl || 'N/A'}
-Attached Resume: ${resumeFile ? `${resumeFile.filename} (${Math.round(resumeFile.size / 1024)} KB)` : 'None'}
+Portfolio / LinkedIn / Resume Link: ${formData.portfolioUrl || 'N/A'}
+Attached File: ${resumeFile ? `${resumeFile.filename} (${Math.round(resumeFile.size / 1024)} KB)` : 'None'}
 
 Technical Background & Key Projects:
 ${formData.projectHighlights || 'No project notes provided.'}
 --------------------------------------------------
-Dispatched to: ${COMPANY_DETAILS.email} via ALS Infonet Nodemailer Gateway`;
+Target Inbox: ${COMPANY_DETAILS.email}`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -256,15 +255,11 @@ Dispatched to: ${COMPANY_DETAILS.email} via ALS Infonet Nodemailer Gateway`;
 
       const result = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok || !result.success) {
         throw new Error(result.error || result.details || 'Failed to send application email.');
       }
 
       setIsSubmitted(true);
-      setSubmissionMeta({
-        isTestAccount: result.isTestAccount,
-        previewUrl: result.previewUrl,
-      });
     } catch (err: any) {
       console.error('Nodemailer submission error:', err);
       setSubmitError(err?.message || 'Unable to connect to the mailing service.');
@@ -273,7 +268,7 @@ Dispatched to: ${COMPANY_DETAILS.email} via ALS Infonet Nodemailer Gateway`;
     }
   };
 
-  const handleFallbackMailto = () => {
+  const handleDirectEmailClient = () => {
     const summary = generateApplicationSummary();
     const subject = encodeURIComponent(`Internship Application: ${activeRole.title} - ${formData.fullName}`);
     const body = encodeURIComponent(summary);
@@ -512,16 +507,19 @@ Dispatched to: ${COMPANY_DETAILS.email} via ALS Infonet Nodemailer Gateway`;
               </div>
 
               {/* Direct Help Callout */}
-              <div className="p-4 bg-[#FAFAFA] border border-[#EAEAEA] text-xs font-sans text-[#666666] space-y-1">
-                <span className="font-medium text-black block">Direct Dispatch Target:</span>
-                <div>
-                  Sent directly via Nodemailer to:{' '}
-                  <a href={`mailto:${COMPANY_DETAILS.email}`} className="text-black font-medium underline">
+              <div className="p-4 bg-[#FAFAFA] border border-[#EAEAEA] text-xs font-sans text-[#666666] space-y-1.5">
+                <span className="font-semibold text-black block">Receiving Inbox:</span>
+                <div className="flex items-center gap-2 text-black">
+                  <Mail size={13} className="text-neutral-500" />
+                  <a href={`mailto:${COMPANY_DETAILS.email}`} className="font-medium hover:underline">
                     {COMPANY_DETAILS.email}
                   </a>
                 </div>
-                <div>
-                  Direct Line: <a href={`tel:${COMPANY_DETAILS.phoneRaw}`} className="text-black underline">{COMPANY_DETAILS.phone}</a>
+                <div className="flex items-center gap-2 text-black">
+                  <Phone size={13} className="text-neutral-500" />
+                  <a href={`tel:${COMPANY_DETAILS.phoneRaw}`} className="font-medium hover:underline">
+                    {COMPANY_DETAILS.phone}
+                  </a>
                 </div>
               </div>
             </div>
@@ -539,33 +537,19 @@ Dispatched to: ${COMPANY_DETAILS.email} via ALS Infonet Nodemailer Gateway`;
                   </div>
                   <div>
                     <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-neutral-400 block mb-1">
-                      Nodemailer Delivery Confirmed
+                      Nodemailer Direct Delivery
                     </span>
                     <h4 className="text-2xl sm:text-3xl font-serif font-normal">
-                      Application Dispatched to ALS Infonet
+                      Delivered to {COMPANY_DETAILS.email}
                     </h4>
                   </div>
                   <p className="text-xs sm:text-sm text-neutral-300 font-sans font-light leading-relaxed">
                     Thank you, <strong>{formData.fullName}</strong>. Your application for{' '}
                     <strong>{activeRole.title}</strong>{' '}
                     {resumeFile ? `along with your attached resume (${resumeFile.filename})` : ''} has
-                    been formatted and sent directly to our talent team at{' '}
+                    been dispatched directly to our talent team at{' '}
                     <strong className="text-white">{COMPANY_DETAILS.email}</strong>.
                   </p>
-
-                  {submissionMeta?.previewUrl && (
-                    <div className="p-3 bg-neutral-900 border border-neutral-800 text-xs text-neutral-300 flex items-center justify-between">
-                      <span>Test delivery preview available:</span>
-                      <a
-                        href={submissionMeta.previewUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-white underline hover:text-neutral-300 font-mono"
-                      >
-                        View Email Preview <ExternalLink size={12} />
-                      </a>
-                    </div>
-                  )}
 
                   <div className="p-4 bg-neutral-900 border border-neutral-800 text-xs font-mono text-neutral-300 overflow-x-auto whitespace-pre-wrap max-h-48 leading-relaxed">
                     {generateApplicationSummary()}
@@ -595,25 +579,33 @@ Dispatched to: ${COMPANY_DETAILS.email} via ALS Infonet Nodemailer Gateway`;
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6 font-sans">
                   {submitError && (
-                    <div className="p-4 bg-red-50 border border-red-200 text-red-800 text-xs flex flex-col gap-2">
-                      <div className="flex items-center gap-2 font-medium">
-                        <AlertCircle size={15} />
-                        <span>Transmission Notice: {submitError}</span>
+                    <div className="p-5 bg-neutral-950 border border-neutral-800 text-white text-xs space-y-3">
+                      <div className="flex items-start gap-2.5">
+                        <AlertCircle size={16} className="text-amber-400 shrink-0 mt-0.5" />
+                        <div>
+                          <div className="font-semibold text-sm text-white mb-1">Gmail SMTP Delivery Notice</div>
+                          <p className="text-neutral-300 text-xs leading-relaxed">
+                            {submitError}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-3 pt-1">
+
+                      <div className="pt-2 border-t border-neutral-800/80 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                         <button
                           type="button"
-                          onClick={handleFallbackMailto}
-                          className="text-black font-semibold underline cursor-pointer"
+                          onClick={handleDirectEmailClient}
+                          className="px-4 py-2.5 bg-white text-black font-medium text-xs uppercase tracking-wider hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2 cursor-pointer"
                         >
-                          Send via your mail client instead &rarr;
+                          <Send size={12} />
+                          <span>Send Now via Email Client</span>
                         </button>
                         <button
                           type="button"
                           onClick={handleCopySummary}
-                          className="text-[#666666] underline cursor-pointer"
+                          className="px-4 py-2.5 border border-neutral-700 text-neutral-300 text-xs uppercase tracking-wider hover:text-white hover:border-neutral-500 transition-colors flex items-center justify-center gap-2 cursor-pointer"
                         >
-                          Copy details
+                          <Copy size={12} />
+                          <span>{copiedBrief ? 'Copied!' : 'Copy Summary'}</span>
                         </button>
                       </div>
                     </div>
@@ -743,7 +735,7 @@ Dispatched to: ${COMPANY_DETAILS.email} via ALS Infonet Nodemailer Gateway`;
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <label className="text-xs uppercase tracking-[0.18em] text-[#666666] font-medium">
-                        Resume / CV Document (Attached with Email)
+                        Resume Document (Attached Directly with Email)
                       </label>
                       <span className="text-[11px] text-[#888888]">PDF, DOC, DOCX up to 5MB</span>
                     </div>
@@ -792,10 +784,10 @@ Dispatched to: ${COMPANY_DETAILS.email} via ALS Infonet Nodemailer Gateway`;
                           className="mx-auto mb-2 text-[#777777] group-hover:text-black group-hover:scale-110 transition-transform"
                         />
                         <div className="text-xs font-medium text-black">
-                          Click to upload your resume or drag and drop
+                          Click to upload resume or drag and drop
                         </div>
                         <div className="text-[11px] text-[#888888] mt-1">
-                          Nodemailer attaches this file directly to the dispatch email
+                          Attached automatically to the email sent to contactalsinfonet@gmail.com
                         </div>
                       </div>
                     )}

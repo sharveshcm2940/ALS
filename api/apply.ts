@@ -1,4 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'http';
+import 'dotenv/config';
 import nodemailer from 'nodemailer';
 
 export interface ApplicationPayload {
@@ -71,38 +72,40 @@ export default async function handler(req: any, res: any) {
     }
 
     const recipient = process.env.RECIPIENT_EMAIL || 'contactalsinfonet@gmail.com';
-    const smtpUser = process.env.SMTP_USER || process.env.EMAIL_USER;
+    const smtpUser = process.env.SMTP_USER || process.env.EMAIL_USER || 'contactalsinfonet@gmail.com';
     const smtpPass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
     const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
     const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
     const smtpSecure = process.env.SMTP_SECURE !== 'false';
 
-    let transporter: any;
-    let isTestAccount = false;
-
-    if (smtpUser && smtpPass) {
-      transporter = nodemailer.createTransport({
-        host: smtpHost,
-        port: smtpPort,
-        secure: smtpSecure,
-        auth: {
-          user: smtpUser,
-          pass: smtpPass,
-        },
-      });
-    } else {
-      isTestAccount = true;
-      const testAccount = await nodemailer.createTestAccount();
-      transporter = nodemailer.createTransport({
-        host: 'smtp.ethereal.email',
-        port: 587,
-        secure: false,
-        auth: {
-          user: testAccount.user,
-          pass: testAccount.pass,
-        },
-      });
+    // If no SMTP_PASS is configured yet, we cannot deliver directly to real Gmail inbox
+    if (!smtpPass) {
+      console.warn(
+        '[Nodemailer Warning]: SMTP_PASS is missing in your .env / environment. Gmail requires an App Password to deliver to real inboxes.'
+      );
+      res.statusCode = 400;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(
+        JSON.stringify({
+          success: false,
+          requiresAuth: true,
+          error:
+            'Gmail App Password is not yet set in SMTP_PASS. To receive emails directly in contactalsinfonet@gmail.com, generate a Google App Password and add it to your .env file or Vercel Environment Variables.',
+        })
+      );
+      return;
     }
+
+    // Configure real Gmail SMTP Transporter
+    const transporter = nodemailer.createTransport({
+      host: smtpHost,
+      port: smtpPort,
+      secure: smtpSecure,
+      auth: {
+        user: smtpUser,
+        pass: smtpPass,
+      },
+    });
 
     // Attachments
     const attachments: any[] = [];
@@ -182,8 +185,8 @@ export default async function handler(req: any, res: any) {
       </div>
     `;
 
-    const info = await transporter.sendMail({
-      from: `"ALS Infonet Careers" <${smtpUser || 'careers@alsinfonet.com'}>`,
+    await transporter.sendMail({
+      from: `"ALS Infonet Careers" <${smtpUser}>`,
       to: recipient,
       replyTo: data.email,
       subject: `[Internship Application] ${data.roleTitle} - ${data.fullName}`,
@@ -205,20 +208,12 @@ ${data.projectHighlights}
       attachments,
     });
 
-    let previewUrl: string | false = false;
-    if (isTestAccount) {
-      previewUrl = nodemailer.getTestMessageUrl(info);
-      console.log('[Nodemailer Ethereal Preview URL]:', previewUrl);
-    }
-
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
     res.end(
       JSON.stringify({
         success: true,
-        message: 'Application delivered successfully to ' + recipient,
-        isTestAccount,
-        previewUrl,
+        message: 'Application delivered directly to your Gmail inbox: ' + recipient,
       })
     );
   } catch (error: any) {
@@ -227,8 +222,8 @@ ${data.projectHighlights}
     res.setHeader('Content-Type', 'application/json');
     res.end(
       JSON.stringify({
-        error: 'Failed to dispatch email application.',
-        details: error?.message || 'Internal server error',
+        error: 'Failed to dispatch email via Gmail SMTP.',
+        details: error?.message || 'SMTP authentication error',
       })
     );
   }
