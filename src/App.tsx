@@ -6,6 +6,7 @@ import { AboutSection } from './components/AboutSection';
 import { ServicesSection } from './components/ServicesSection';
 import { CinematicBrandSection } from './components/CinematicBrandSection';
 import { SelectedWorkSection } from './components/SelectedWorkSection';
+import { CareersSection } from './components/CareersSection';
 import { Footer } from './components/Footer';
 import { ProjectEstimatorModal } from './components/ProjectEstimatorModal';
 import { LegalModal } from './components/LegalModals';
@@ -106,9 +107,12 @@ function CorporateSite() {
         <SelectedWorkSection
           onDiscussSimilarProject={handleSelectServiceForInquiry}
         />
+
+        {/* 7. Careers Section: Internship Applications for Data Analytics, Full Stack & AI/ML */}
+        <CareersSection />
       </main>
 
-      {/* 7. Understated Clean Footer */}
+      {/* 8. Understated Clean Footer */}
       <Footer
         onOpenPrivacy={() => setLegalModalType('privacy')}
         onOpenTerms={() => setLegalModalType('terms')}

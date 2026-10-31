@@ -5,6 +5,7 @@ import { AboutSection } from './AboutSection';
 import { ServicesSection } from './ServicesSection';
 import { CinematicBrandSection } from './CinematicBrandSection';
 import { SelectedWorkSection } from './SelectedWorkSection';
+import { CareersSection } from './CareersSection';
 import { Footer } from './Footer';
 import { ProjectEstimatorModal } from './ProjectEstimatorModal';
 import { LegalModal } from './LegalModals';
@@ -74,9 +75,12 @@ export const CorporateHome: React.FC = () => {
         <SelectedWorkSection
           onDiscussSimilarProject={handleSelectServiceForInquiry}
         />
+
+        {/* 7. Careers Section: Internship Applications */}
+        <CareersSection />
       </main>
 
-      {/* 7. Understated Clean Footer */}
+      {/* 8. Understated Clean Footer */}
       <Footer
         onOpenPrivacy={() => setLegalModalType('privacy')}
         onOpenTerms={() => setLegalModalType('terms')}

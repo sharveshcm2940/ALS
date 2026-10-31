@@ -87,6 +87,7 @@ const NAV_LINKS = [
   { id: 'about', label: 'About' },
   { id: 'services', label: 'Services' },
   { id: 'projects', label: 'Projects' },
+  { id: 'careers', label: 'Careers' },
 ];
 
 export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
