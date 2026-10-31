@@ -23,7 +23,7 @@ export const AboutSection: React.FC = () => {
             className="flex items-center justify-between font-sans text-xs uppercase tracking-[0.22em] text-[#777777] font-medium"
           >
             <span>01 / ABOUT ALS INFONET</span>
-            <span className="hidden sm:inline">PHILOSOPHY &amp; APPROACH</span>
+            <span className="hidden sm:inline">PHILOSOPHY &amp; PRINCIPLES</span>
           </motion.div>
 
           {/* Line draws left-to-right as section enters viewport */}

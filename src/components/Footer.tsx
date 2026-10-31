@@ -65,9 +65,7 @@ export const Footer: React.FC<FooterProps> = ({
                 { id: 'hero', label: 'Home' },
                 { id: 'about', label: 'About' },
                 { id: 'services', label: 'Services' },
-                { id: 'approach', label: 'Approach' },
                 { id: 'projects', label: 'Projects' },
-                { id: 'contact', label: 'Contact' },
               ].map((link) => (
                 <li key={link.id}>
                   <button

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220" width="640" height="440" fill="none">
+  <g transform="translate(115, 15) scale(0.9)">
+    <path d="M 50 10 L 88 48 H 72 L 50 26 L 28 48 H 12 Z" fill="#000000"/>
+    <path d="M 50 42 L 59 51 L 50 60 L 41 51 Z" fill="#000000"/>
+    <path d="M 12 54 H 24 V 76 H 44 V 88 H 12 Z" fill="#000000"/>
+    <path d="M 88 54 H 60 V 64 H 76 V 76 H 56 V 88 H 88 Z" fill="#000000"/>
+  </g>
+  <g transform="translate(160, 145)" text-anchor="middle">
+    <text font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="24" letter-spacing="0.24em">
+      <tspan font-weight="800" fill="#000000">ALS </tspan>
+      <tspan font-weight="200" fill="#999999">|</tspan>
+      <tspan font-weight="300" fill="#171717"> INFONET</tspan>
+    </text>
+    <text y="28" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="10" font-weight="600" letter-spacing="0.28em" fill="#737373">
+      SOFTWARE SOLUTIONS · IT SERVICES
+    </text>
+  </g>
+</svg>

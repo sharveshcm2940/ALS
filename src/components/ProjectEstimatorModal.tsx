@@ -176,7 +176,7 @@ export const ProjectEstimatorModal: React.FC<ProjectEstimatorModalProps> = ({
                 onClick={handleApplyBrief}
                 className="w-full sm:w-auto px-6 py-3 bg-white text-black text-xs uppercase tracking-[0.16em] font-medium hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span>Proceed to Contact Form</span>
+                <span>Submit Project Brief via Email</span>
                 <ArrowRight size={14} />
               </motion.button>
             </div>

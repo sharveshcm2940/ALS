@@ -4,10 +4,8 @@ import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { AboutSection } from './components/AboutSection';
 import { ServicesSection } from './components/ServicesSection';
-import { SignatureProcessSection } from './components/SignatureProcessSection';
 import { CinematicBrandSection } from './components/CinematicBrandSection';
 import { SelectedWorkSection } from './components/SelectedWorkSection';
-import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
 import { ProjectEstimatorModal } from './components/ProjectEstimatorModal';
 import { LegalModal } from './components/LegalModals';
@@ -54,10 +52,7 @@ function CorporateSite() {
   };
 
   const handleDiscussProjectFromHero = () => {
-    const contactEl = document.getElementById('contact');
-    if (contactEl) {
-      contactEl.scrollIntoView({ behavior: 'smooth' });
-    }
+    setIsEstimatorOpen(true);
   };
 
   const handleExploreServicesFromHero = () => {
@@ -69,26 +64,14 @@ function CorporateSite() {
 
   const handleSelectServiceForInquiry = (serviceTitle: string) => {
     setSelectedServiceForInquiry(serviceTitle);
-    const contactEl = document.getElementById('contact');
-    if (contactEl) {
-      contactEl.scrollIntoView({ behavior: 'smooth' });
-    }
+    setIsEstimatorOpen(true);
   };
 
   const handleProceedFromEstimator = (service: string, summary: string) => {
     setIsEstimatorOpen(false);
-    setSelectedServiceForInquiry(service);
-    const contactEl = document.getElementById('contact');
-    if (contactEl) {
-      contactEl.scrollIntoView({ behavior: 'smooth' });
-      setTimeout(() => {
-        const textarea = document.getElementById('projectDescription') as HTMLTextAreaElement | null;
-        if (textarea) {
-          textarea.value = summary;
-          textarea.focus();
-        }
-      }, 500);
-    }
+    const subject = encodeURIComponent(`Project Inquiry - ${service}`);
+    const body = encodeURIComponent(summary);
+    window.location.href = `mailto:contact@alsinfonet.com?subject=${subject}&body=${body}`;
   };
 
   return (
@@ -115,24 +98,16 @@ function CorporateSite() {
           onSelectServiceForInquiry={handleSelectServiceForInquiry}
         />
 
-        {/* 5. Signature Experience: How We Work (Animated Continuous Progression Timeline) */}
-        <SignatureProcessSection />
-
-        {/* 6. Cinematic Dark Section: Brand Philosophy (Dramatic Clipping-Mask Text Reveals) */}
+        {/* 5. Cinematic Dark Section: Brand Philosophy (Dramatic Clipping-Mask Text Reveals) */}
         <CinematicBrandSection />
 
-        {/* 7. Selected Work: 4 Real Interactive Commercial Software Applications */}
+        {/* 6. Selected Work: 4 Real Interactive Commercial Software Applications */}
         <SelectedWorkSection
           onDiscussSimilarProject={handleSelectServiceForInquiry}
         />
-
-        {/* 8. Conversion-Focused Black Contact Section with Form Feedback & Contrast-Inverting Button */}
-        <ContactSection
-          initialService={selectedServiceForInquiry}
-        />
       </main>
 
-      {/* 9. Understated Clean Footer */}
+      {/* 7. Understated Clean Footer */}
       <Footer
         onOpenPrivacy={() => setLegalModalType('privacy')}
         onOpenTerms={() => setLegalModalType('terms')}

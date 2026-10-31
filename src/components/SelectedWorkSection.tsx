@@ -178,7 +178,7 @@ export const SelectedWorkSection: React.FC<SelectedWorkSectionProps> = ({
               custom={0.1}
             >
               <span className="text-xs font-serif tracking-[0.3em] uppercase text-[#777777] block mb-4">
-                04 / INTERACTIVE SOFTWARE PRODUCTS
+                03 / INTERACTIVE SOFTWARE PRODUCTS
               </span>
               <h2
                 id="projects-heading"

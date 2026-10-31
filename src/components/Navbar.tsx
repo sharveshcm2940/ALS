@@ -85,9 +85,7 @@ const NAV_LINKS = [
   { id: 'hero', label: 'Home' },
   { id: 'about', label: 'About' },
   { id: 'services', label: 'Services' },
-  { id: 'approach', label: 'Approach' },
   { id: 'projects', label: 'Projects' },
-  { id: 'contact', label: 'Contact' },
 ];
 
 export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
@@ -136,8 +134,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 flex items-center justify-between">
-          {/* Logo with hover scale */}
-          <div className="flex items-center gap-6">
+          {/* Left: Brand Logo */}
+          <div className="flex items-center gap-6 shrink-0">
             <button
               type="button"
               onClick={() => scrollToSection('hero')}
@@ -148,37 +146,36 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
             </button>
           </div>
 
-          {/* Desktop Navigation Links with Animated Layout Indicator */}
-          <nav
-            aria-label="Primary Navigation"
-            className="hidden md:flex items-center space-x-8 lg:space-x-10"
-          >
-            {NAV_LINKS.map((link) => {
-              const isActive = activeSection === link.id;
+          {/* Right-Sided End: Navigation Links & Action Button clustered together */}
+          <div className="hidden md:flex items-center gap-8 lg:gap-10 ml-auto">
+            <nav
+              aria-label="Primary Navigation"
+              className="flex items-center space-x-7 lg:space-x-9"
+            >
+              {NAV_LINKS.map((link) => {
+                const isActive = activeSection === link.id;
 
-              return (
-                <button
-                  key={link.id}
-                  onClick={() => scrollToSection(link.id)}
-                  className={`text-xs uppercase tracking-[0.22em] transition-colors duration-200 cursor-pointer relative py-1.5 ${
-                    isActive ? 'text-black font-medium' : 'text-[#777777] hover:text-black'
-                  }`}
-                >
-                  <span>{link.label}</span>
-                  {isActive && (
-                    <motion.span
-                      layoutId="navActiveIndicator"
-                      className="absolute bottom-0 left-0 right-0 h-px bg-black"
-                      transition={{ duration: 0.25, ease: EASINGS.smoothOut }}
-                    />
-                  )}
-                </button>
-              );
-            })}
-          </nav>
+                return (
+                  <button
+                    key={link.id}
+                    onClick={() => scrollToSection(link.id)}
+                    className={`text-xs uppercase tracking-[0.22em] transition-colors duration-200 cursor-pointer relative py-1.5 ${
+                      isActive ? 'text-black font-medium' : 'text-[#777777] hover:text-black'
+                    }`}
+                  >
+                    <span>{link.label}</span>
+                    {isActive && (
+                      <motion.span
+                        layoutId="navActiveIndicator"
+                        className="absolute bottom-0 left-0 right-0 h-px bg-black"
+                        transition={{ duration: 0.25, ease: EASINGS.smoothOut }}
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
 
-          {/* Right Action Buttons */}
-          <div className="hidden md:flex items-center gap-4">
             <motion.button
               type="button"
               onClick={onStartProject}
@@ -195,7 +192,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
           </div>
 
           {/* Mobile Menu Trigger */}
-          <div className="flex md:hidden items-center gap-3">
+          <div className="flex md:hidden items-center gap-3 ml-auto">
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
