@@ -9,6 +9,7 @@ import { Footer } from './Footer';
 import { ProjectEstimatorModal } from './ProjectEstimatorModal';
 import { LegalModal } from './LegalModals';
 import { CustomCursor } from './animations/CustomCursor';
+import { COMPANY_DETAILS } from '../data/companyData';
 
 export const CorporateHome: React.FC = () => {
   const [isEstimatorOpen, setIsEstimatorOpen] = useState(false);
@@ -39,7 +40,7 @@ export const CorporateHome: React.FC = () => {
     setIsEstimatorOpen(false);
     const subject = encodeURIComponent(`Project Inquiry - ${service}`);
     const body = encodeURIComponent(summary);
-    window.location.href = `mailto:contact@alsinfonet.com?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:${COMPANY_DETAILS.email}?subject=${subject}&body=${body}`;
   };
 
   return (

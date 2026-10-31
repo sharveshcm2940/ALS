@@ -10,6 +10,7 @@ import { Footer } from './components/Footer';
 import { ProjectEstimatorModal } from './components/ProjectEstimatorModal';
 import { LegalModal } from './components/LegalModals';
 import { CustomCursor } from './components/animations/CustomCursor';
+import { COMPANY_DETAILS } from './data/companyData';
 
 // Four dedicated interactive commercial software applications
 import { BusinessSuiteApp } from './apps/business/BusinessSuiteApp';
@@ -71,7 +72,7 @@ function CorporateSite() {
     setIsEstimatorOpen(false);
     const subject = encodeURIComponent(`Project Inquiry - ${service}`);
     const body = encodeURIComponent(summary);
-    window.location.href = `mailto:contact@alsinfonet.com?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:${COMPANY_DETAILS.email}?subject=${subject}&body=${body}`;
   };
 
   return (

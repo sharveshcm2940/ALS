@@ -86,7 +86,7 @@ export const LegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
                 </h4>
                 <p>
                   For inquiries regarding data retention or technical confidentiality, contact our
-                  governance team directly at <span className="text-white">privacy@alsinfonet.com</span>.
+                  governance team directly at <span className="text-white">contactalsinfonet@gmail.com (Phone: +91 93535 43350)</span>.
                 </p>
               </div>
             </>

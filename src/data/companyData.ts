@@ -59,8 +59,10 @@ export const COMPANY_DETAILS = {
       coordinates: "12.9716° N, 77.5946° E",
     },
   ],
-  email: "contact@alsinfonet.com",
-  inquiriesEmail: "projects@alsinfonet.com",
+  phone: "+91 93535 43350",
+  phoneRaw: "+919353543350",
+  email: "contactalsinfonet@gmail.com",
+  inquiriesEmail: "contactalsinfonet@gmail.com",
 };
 
 export const SERVICES: ServiceItem[] = [

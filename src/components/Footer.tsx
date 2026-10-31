@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { COMPANY_DETAILS } from '../data/companyData';
 import { ALSLogo } from './ALSLogo';
-import { ArrowUp } from 'lucide-react';
+import { ArrowUp, Phone, Mail } from 'lucide-react';
 import { fadeInUpVariants } from './animations/motionVariants';
 
 interface FooterProps {
@@ -80,10 +80,10 @@ export const Footer: React.FC<FooterProps> = ({
             </ul>
           </div>
 
-          {/* Operating Hubs */}
+          {/* Operating Hubs & Direct Contact */}
           <div className="lg:col-span-3 space-y-4">
             <span className="text-xs tracking-[0.18em] uppercase text-neutral-400 block font-sans font-medium">
-              Offices &amp; Delivery
+              Offices &amp; Direct Contact
             </span>
             <div className="space-y-4 text-xs font-sans text-neutral-400">
               <div>
@@ -94,12 +94,20 @@ export const Footer: React.FC<FooterProps> = ({
                 <div className="text-white text-sm font-medium">Bangalore &middot; Karnataka</div>
                 <div className="font-light mt-0.5">Solutions &amp; Systems Hub</div>
               </div>
-              <div className="pt-2">
+              <div className="pt-2 space-y-2 border-t border-neutral-900/80">
+                <a
+                  href={`tel:${COMPANY_DETAILS.phoneRaw}`}
+                  className="text-white hover:text-neutral-300 transition-colors flex items-center gap-2.5 font-medium"
+                >
+                  <Phone size={13} className="text-neutral-400 shrink-0" />
+                  <span>{COMPANY_DETAILS.phone}</span>
+                </a>
                 <a
                   href={`mailto:${COMPANY_DETAILS.email}`}
-                  className="text-white hover:underline transition-all block"
+                  className="text-white hover:text-neutral-300 transition-colors flex items-center gap-2.5 break-all"
                 >
-                  {COMPANY_DETAILS.email}
+                  <Mail size={13} className="text-neutral-400 shrink-0" />
+                  <span>{COMPANY_DETAILS.email}</span>
                 </a>
               </div>
             </div>

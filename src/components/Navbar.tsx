@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Menu, X, ArrowUpRight } from 'lucide-react';
+import { Menu, X, ArrowUpRight, Phone, Mail } from 'lucide-react';
 import { EASINGS } from './animations/motionVariants';
+import { COMPANY_DETAILS } from '../data/companyData';
 
 interface NavbarProps {
   onStartProject: () => void;
@@ -246,19 +247,38 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
               ))}
             </nav>
 
-            <div className="pt-8 border-t border-[#EAEAEA] flex flex-col gap-4">
+            <div className="pt-8 border-t border-[#EAEAEA] flex flex-col gap-4 font-sans">
               <button
                 type="button"
                 onClick={() => {
                   setMobileMenuOpen(false);
                   onStartProject();
                 }}
-                className="w-full py-4 text-center text-xs uppercase tracking-[0.22em] text-white bg-black cursor-pointer"
+                className="w-full py-4 text-center text-xs uppercase tracking-[0.22em] text-white bg-black cursor-pointer font-medium"
               >
                 Start a Project
               </button>
-              <div className="text-center text-xs text-[#777777] font-sans pt-2">
-                Chennai &middot; Bangalore
+
+              <div className="pt-2 flex flex-col items-center gap-2 text-xs text-[#666666]">
+                <span className="uppercase tracking-[0.18em] text-[10px] text-[#999999] font-medium">
+                  Chennai &middot; Bangalore
+                </span>
+                <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 mt-1">
+                  <a
+                    href={`tel:${COMPANY_DETAILS.phoneRaw}`}
+                    className="flex items-center gap-1.5 text-black font-medium hover:underline"
+                  >
+                    <Phone size={12} />
+                    <span>{COMPANY_DETAILS.phone}</span>
+                  </a>
+                  <a
+                    href={`mailto:${COMPANY_DETAILS.email}`}
+                    className="flex items-center gap-1.5 text-black font-medium hover:underline"
+                  >
+                    <Mail size={12} />
+                    <span>{COMPANY_DETAILS.email}</span>
+                  </a>
+                </div>
               </div>
             </div>
           </motion.div>
