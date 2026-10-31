@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   BarChart3,
@@ -14,6 +14,13 @@ import {
   Sparkles,
   Phone,
   Mail,
+  UploadCloud,
+  FileText,
+  X,
+  Paperclip,
+  AlertCircle,
+  Loader2,
+  ExternalLink,
 } from 'lucide-react';
 import { EASINGS, fadeInUpVariants, lineExpandVariants } from './animations/motionVariants';
 import { COMPANY_DETAILS } from '../data/companyData';
@@ -113,6 +120,13 @@ const INTERNSHIP_ROLES: InternshipRole[] = [
   },
 ];
 
+interface UploadedResume {
+  filename: string;
+  contentType: string;
+  base64Content: string;
+  size: number;
+}
+
 export const CareersSection: React.FC = () => {
   const [selectedTrack, setSelectedTrack] = useState<InternshipTrackId>('data-analytics');
   const [formData, setFormData] = useState({
@@ -122,23 +136,70 @@ export const CareersSection: React.FC = () => {
     education: '',
     gradYear: '2026',
     locationPref: 'Chennai',
-    portfolioUrl: '',
     githubUrl: '',
+    portfolioUrl: '',
     projectHighlights: '',
   });
 
+  const [resumeFile, setResumeFile] = useState<UploadedResume | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submissionMeta, setSubmissionMeta] = useState<{ isTestAccount?: boolean; previewUrl?: string } | null>(null);
   const [copiedBrief, setCopiedBrief] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const activeRole = INTERNSHIP_ROLES.find((r) => r.id === selectedTrack) || INTERNSHIP_ROLES[0];
 
   const handleSelectTrack = (trackId: InternshipTrackId) => {
     setSelectedTrack(trackId);
-    // Smooth scroll down to application form if clicked on track cards
     const formEl = document.getElementById('internship-application-form');
     if (formEl) {
       formEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setFileError('File size exceeds 5MB limit. Please upload a smaller document.');
+      return;
+    }
+
+    const validExtensions = ['.pdf', '.doc', '.docx'];
+    const fileNameLower = file.name.toLowerCase();
+    const isValidExtension = validExtensions.some((ext) => fileNameLower.endsWith(ext));
+
+    if (!isValidExtension && !file.type.includes('pdf') && !file.type.includes('word')) {
+      setFileError('Please upload a PDF or Word document (.pdf, .doc, .docx).');
+      return;
+    }
+
+    setFileError(null);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      const base64Content = result.includes(',') ? result.split(',')[1] : result;
+      setResumeFile({
+        filename: file.name,
+        contentType: file.type || 'application/pdf',
+        base64Content,
+        size: file.size,
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveResume = () => {
+    setResumeFile(null);
+    setFileError(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -149,19 +210,19 @@ Track: ${activeRole.title} (${activeRole.department})
 Applicant Name: ${formData.fullName}
 Email: ${formData.email}
 Phone / WhatsApp: ${formData.phone}
-Education / Degree: ${formData.education}
-Graduation Year: ${formData.gradYear}
+Education / Degree: ${formData.education} (${formData.gradYear})
 Preferred Hub: ${formData.locationPref}
 GitHub Profile: ${formData.githubUrl || 'N/A'}
 Portfolio / LinkedIn: ${formData.portfolioUrl || 'N/A'}
+Attached Resume: ${resumeFile ? `${resumeFile.filename} (${Math.round(resumeFile.size / 1024)} KB)` : 'None'}
 
 Technical Background & Key Projects:
 ${formData.projectHighlights || 'No project notes provided.'}
 --------------------------------------------------
-Sent via ALS Infonet Careers Portal`;
+Dispatched to: ${COMPANY_DETAILS.email} via ALS Infonet Nodemailer Gateway`;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.fullName || !formData.email || !formData.phone) {
       alert('Please fill in your name, email, and phone number.');
@@ -169,16 +230,54 @@ Sent via ALS Infonet Careers Portal`;
     }
 
     setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const response = await fetch('/api/apply', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          track: selectedTrack,
+          roleTitle: activeRole.title,
+          fullName: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          education: formData.education,
+          gradYear: formData.gradYear,
+          locationPref: formData.locationPref,
+          githubUrl: formData.githubUrl,
+          portfolioUrl: formData.portfolioUrl,
+          projectHighlights: formData.projectHighlights,
+          resume: resumeFile,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || result.details || 'Failed to send application email.');
+      }
+
+      setIsSubmitted(true);
+      setSubmissionMeta({
+        isTestAccount: result.isTestAccount,
+        previewUrl: result.previewUrl,
+      });
+    } catch (err: any) {
+      console.error('Nodemailer submission error:', err);
+      setSubmitError(err?.message || 'Unable to connect to the mailing service.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleFallbackMailto = () => {
     const summary = generateApplicationSummary();
     const subject = encodeURIComponent(`Internship Application: ${activeRole.title} - ${formData.fullName}`);
     const body = encodeURIComponent(summary);
-
-    // Launch email client
-    setTimeout(() => {
-      window.location.href = `mailto:${COMPANY_DETAILS.email}?subject=${subject}&body=${body}`;
-      setIsSubmitting(false);
-      setIsSubmitted(true);
-    }, 400);
+    window.location.href = `mailto:${COMPANY_DETAILS.email}?subject=${subject}&body=${body}`;
   };
 
   const handleCopySummary = () => {
@@ -414,9 +513,12 @@ Sent via ALS Infonet Careers Portal`;
 
               {/* Direct Help Callout */}
               <div className="p-4 bg-[#FAFAFA] border border-[#EAEAEA] text-xs font-sans text-[#666666] space-y-1">
-                <span className="font-medium text-black block">Direct Inquiries:</span>
+                <span className="font-medium text-black block">Direct Dispatch Target:</span>
                 <div>
-                  Talent Team: <a href={`mailto:${COMPANY_DETAILS.email}`} className="text-black underline">{COMPANY_DETAILS.email}</a>
+                  Sent directly via Nodemailer to:{' '}
+                  <a href={`mailto:${COMPANY_DETAILS.email}`} className="text-black font-medium underline">
+                    {COMPANY_DETAILS.email}
+                  </a>
                 </div>
                 <div>
                   Direct Line: <a href={`tel:${COMPANY_DETAILS.phoneRaw}`} className="text-black underline">{COMPANY_DETAILS.phone}</a>
@@ -424,7 +526,7 @@ Sent via ALS Infonet Careers Portal`;
               </div>
             </div>
 
-            {/* Right Column: Clean Interactive Application Form */}
+            {/* Right Column: Clean Interactive Application Form with Resume Upload */}
             <div className="lg:col-span-7">
               {isSubmitted ? (
                 <motion.div
@@ -437,17 +539,33 @@ Sent via ALS Infonet Careers Portal`;
                   </div>
                   <div>
                     <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-neutral-400 block mb-1">
-                      Submission Ready
+                      Nodemailer Delivery Confirmed
                     </span>
                     <h4 className="text-2xl sm:text-3xl font-serif font-normal">
-                      Application Brief Prepared
+                      Application Dispatched to ALS Infonet
                     </h4>
                   </div>
                   <p className="text-xs sm:text-sm text-neutral-300 font-sans font-light leading-relaxed">
-                    Your application brief for the <strong>{activeRole.title}</strong> has been
-                    generated and your mail client has been opened to send it directly to{' '}
+                    Thank you, <strong>{formData.fullName}</strong>. Your application for{' '}
+                    <strong>{activeRole.title}</strong>{' '}
+                    {resumeFile ? `along with your attached resume (${resumeFile.filename})` : ''} has
+                    been formatted and sent directly to our talent team at{' '}
                     <strong className="text-white">{COMPANY_DETAILS.email}</strong>.
                   </p>
+
+                  {submissionMeta?.previewUrl && (
+                    <div className="p-3 bg-neutral-900 border border-neutral-800 text-xs text-neutral-300 flex items-center justify-between">
+                      <span>Test delivery preview available:</span>
+                      <a
+                        href={submissionMeta.previewUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-white underline hover:text-neutral-300 font-mono"
+                      >
+                        View Email Preview <ExternalLink size={12} />
+                      </a>
+                    </div>
+                  )}
 
                   <div className="p-4 bg-neutral-900 border border-neutral-800 text-xs font-mono text-neutral-300 overflow-x-auto whitespace-pre-wrap max-h-48 leading-relaxed">
                     {generateApplicationSummary()}
@@ -460,11 +578,14 @@ Sent via ALS Infonet Careers Portal`;
                       className="px-5 py-3 border border-white text-white text-xs uppercase tracking-[0.16em] font-sans hover:bg-white hover:text-black transition-colors flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <Copy size={13} />
-                      <span>{copiedBrief ? 'Copied to Clipboard!' : 'Copy Application Details'}</span>
+                      <span>{copiedBrief ? 'Copied to Clipboard!' : 'Copy Application Summary'}</span>
                     </button>
                     <button
                       type="button"
-                      onClick={() => setIsSubmitted(false)}
+                      onClick={() => {
+                        setIsSubmitted(false);
+                        handleRemoveResume();
+                      }}
                       className="px-5 py-3 text-xs uppercase tracking-[0.16em] font-sans text-neutral-400 hover:text-white transition-colors cursor-pointer text-center"
                     >
                       Submit Another Application
@@ -473,6 +594,31 @@ Sent via ALS Infonet Careers Portal`;
                 </motion.div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6 font-sans">
+                  {submitError && (
+                    <div className="p-4 bg-red-50 border border-red-200 text-red-800 text-xs flex flex-col gap-2">
+                      <div className="flex items-center gap-2 font-medium">
+                        <AlertCircle size={15} />
+                        <span>Transmission Notice: {submitError}</span>
+                      </div>
+                      <div className="flex items-center gap-3 pt-1">
+                        <button
+                          type="button"
+                          onClick={handleFallbackMailto}
+                          className="text-black font-semibold underline cursor-pointer"
+                        >
+                          Send via your mail client instead &rarr;
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleCopySummary}
+                          className="text-[#666666] underline cursor-pointer"
+                        >
+                          Copy details
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Track Selector Radio Pills */}
                   <div>
                     <label className="text-xs uppercase tracking-[0.18em] text-[#666666] font-medium block mb-2">
@@ -593,6 +739,75 @@ Sent via ALS Infonet Careers Portal`;
                     </div>
                   </div>
 
+                  {/* Resume Upload Box */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs uppercase tracking-[0.18em] text-[#666666] font-medium">
+                        Resume / CV Document (Attached with Email)
+                      </label>
+                      <span className="text-[11px] text-[#888888]">PDF, DOC, DOCX up to 5MB</span>
+                    </div>
+
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      id="resume-file-input"
+                      accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+
+                    {resumeFile ? (
+                      <div className="p-4 bg-white border-2 border-black flex items-center justify-between transition-all">
+                        <div className="flex items-center gap-3 overflow-hidden">
+                          <div className="w-9 h-9 bg-black text-white flex items-center justify-center shrink-0">
+                            <FileText size={18} />
+                          </div>
+                          <div className="overflow-hidden">
+                            <div className="text-xs font-semibold text-black truncate">
+                              {resumeFile.filename}
+                            </div>
+                            <div className="text-[11px] text-[#777777]">
+                              {Math.round(resumeFile.size / 1024)} KB &middot; Ready for Nodemailer
+                            </div>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={handleRemoveResume}
+                          className="p-1.5 text-[#777777] hover:text-red-600 transition-colors cursor-pointer"
+                          title="Remove file"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => fileInputRef.current?.click()}
+                        className="p-6 border-2 border-dashed border-[#D4D4D4] hover:border-black bg-[#FAFAFA] hover:bg-white text-center cursor-pointer transition-all group"
+                      >
+                        <UploadCloud
+                          size={24}
+                          className="mx-auto mb-2 text-[#777777] group-hover:text-black group-hover:scale-110 transition-transform"
+                        />
+                        <div className="text-xs font-medium text-black">
+                          Click to upload your resume or drag and drop
+                        </div>
+                        <div className="text-[11px] text-[#888888] mt-1">
+                          Nodemailer attaches this file directly to the dispatch email
+                        </div>
+                      </div>
+                    )}
+
+                    {fileError && (
+                      <p className="text-xs text-red-600 mt-2 flex items-center gap-1.5">
+                        <AlertCircle size={13} />
+                        <span>{fileError}</span>
+                      </p>
+                    )}
+                  </div>
+
                   {/* URLs: GitHub & Portfolio */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -610,7 +825,7 @@ Sent via ALS Infonet Careers Portal`;
 
                     <div>
                       <label className="text-xs uppercase tracking-[0.18em] text-[#666666] font-medium block mb-2">
-                        LinkedIn / Portfolio / Resume Link
+                        Portfolio / LinkedIn / Drive Link
                       </label>
                       <input
                         type="url"
@@ -640,18 +855,27 @@ Sent via ALS Infonet Careers Portal`;
                   {/* Submit Button */}
                   <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <span className="text-[11px] text-[#777777] font-sans">
-                      Submissions are routed directly to <strong className="text-black font-medium">{COMPANY_DETAILS.email}</strong>.
+                      Target: <strong className="text-black font-medium">{COMPANY_DETAILS.email}</strong> via Nodemailer.
                     </span>
 
                     <motion.button
                       type="submit"
                       disabled={isSubmitting}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                      whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
+                      whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
                       className="w-full sm:w-auto px-8 py-3.5 bg-black text-white text-xs font-medium tracking-[0.16em] uppercase hover:bg-neutral-800 transition-colors inline-flex items-center justify-center gap-2.5 cursor-pointer shadow-xs disabled:opacity-50"
                     >
-                      <Send size={13} />
-                      <span>{isSubmitting ? 'Preparing...' : 'Submit Application'}</span>
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 size={14} className="animate-spin" />
+                          <span>Sending with Nodemailer...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Send size={13} />
+                          <span>Submit via Nodemailer</span>
+                        </>
+                      )}
                     </motion.button>
                   </div>
                 </form>
