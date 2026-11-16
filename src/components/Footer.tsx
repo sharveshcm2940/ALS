@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { COMPANY_DETAILS } from '../data/companyData';
 import { ALSLogo } from './ALSLogo';
-import { ArrowUp, Phone, Mail } from 'lucide-react';
+import { ArrowUp, Phone, Mail, MapPin } from 'lucide-react';
 import { fadeInUpVariants } from './animations/motionVariants';
 
 interface FooterProps {
@@ -95,6 +95,10 @@ export const Footer: React.FC<FooterProps> = ({
                 <div className="font-light mt-0.5">Solutions &amp; Systems Hub</div>
               </div>
               <div className="pt-2 space-y-2 border-t border-neutral-900/80">
+                <div className="text-neutral-300 flex items-start gap-2.5 leading-relaxed">
+                  <MapPin size={13} className="text-neutral-400 shrink-0 mt-0.5" />
+                  <span>467, Nehru Nagar 2nd Main Rd, Rajiv Gandhi Salai, Perungudi, Chennai 600041</span>
+                </div>
                 <a
                   href={`tel:${COMPANY_DETAILS.phoneRaw}`}
                   className="text-white hover:text-neutral-300 transition-colors flex items-center gap-2.5 font-medium"

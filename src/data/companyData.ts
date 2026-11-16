@@ -41,13 +41,15 @@ export const COMPANY_DETAILS = {
     headline: "Less complexity.\nMore clarity.",
     copy: "Every business has different challenges. The right software begins with understanding those challenges and building around what matters.",
   },
+  addressShort: "467, Nehru Nagar 2nd Main Rd, Perungudi, Chennai 600041",
+  addressFull: "467, Nehru Nagar 2nd Main Road, Rajiv Gandhi Salai, near Kandanchavadi, Perungudi, Chennai, Tamil Nadu 600041",
   locations: [
     {
       city: "Chennai",
       state: "Tamil Nadu",
       country: "India",
       role: "Engineering & Delivery Center",
-      zone: "Guindy / OMR Tech Corridor",
+      zone: "467, Nehru Nagar 2nd Main Rd, Perungudi, Chennai 600041",
       coordinates: "13.0827° N, 80.2707° E",
     },
     {
